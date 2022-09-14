@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import lldfooddeliveryapp.swiggy.model.CartCommandType;
+import lldfooddeliveryapp.swiggy.enums.CartCommandType;
 import lldfooddeliveryapp.swiggy.model.MenuItem;
 import lldfooddeliveryapp.swiggy.service.CartService;
 

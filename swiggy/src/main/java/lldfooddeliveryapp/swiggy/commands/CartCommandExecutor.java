@@ -1,8 +1,8 @@
 package lldfooddeliveryapp.swiggy.commands;
 
+import lldfooddeliveryapp.swiggy.enums.CartCommandType;
 import lldfooddeliveryapp.swiggy.exceptions.ExceptionType;
 import lldfooddeliveryapp.swiggy.exceptions.FoodDeliveryException;
-import lldfooddeliveryapp.swiggy.model.CartCommandType;
 import lombok.NonNull;
 
 public abstract class CartCommandExecutor {

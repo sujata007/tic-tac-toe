@@ -2,7 +2,7 @@ package lldfooddeliveryapp.swiggy.service;
 
 import java.util.List;
 
-import lldfooddeliveryapp.swiggy.model.CartCommandType;
+import lldfooddeliveryapp.swiggy.enums.CartCommandType;
 import lldfooddeliveryapp.swiggy.model.MenuItem;
 
 public interface CartService {

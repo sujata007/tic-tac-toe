@@ -1,4 +1,4 @@
-package lldfooddeliveryapp.swiggy.model;
+package lldfooddeliveryapp.swiggy.enums;
 
 public enum CartCommandType {
 	ADD_ITEM,

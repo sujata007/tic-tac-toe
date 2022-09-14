@@ -1,5 +1,7 @@
 package lldfooddeliveryapp.swiggy.model;
 
+import lldfooddeliveryapp.swiggy.enums.CuisineType;
+import lldfooddeliveryapp.swiggy.enums.MealType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
