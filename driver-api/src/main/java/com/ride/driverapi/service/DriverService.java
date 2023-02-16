@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ride.driverapi.model.Driver;
 import com.ride.driverapi.model.DriverDocRequest;
 import com.ride.driverapi.model.SignUpRequest;
+import com.ride.driverapi.model.VerifyRequest;
 @Component
 public interface DriverService {
 
@@ -14,5 +15,7 @@ public interface DriverService {
 	String uploadDocument(DriverDocRequest uploadRequest, MultipartFile file);
 
 	String getCuurentStatus(Long driverId);
+
+	Driver verifyAccount(VerifyRequest verifyRequest);
 
 }

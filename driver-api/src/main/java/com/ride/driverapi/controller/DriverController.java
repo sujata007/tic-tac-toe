@@ -1,9 +1,6 @@
 package com.ride.driverapi.controller;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.tomcat.util.buf.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +17,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ride.driverapi.exception.FormattedErrorException;
-import com.ride.driverapi.model.DocumentType;
 import com.ride.driverapi.model.Driver;
 import com.ride.driverapi.model.DriverDocRequest;
 import com.ride.driverapi.model.SignUpRequest;
+import com.ride.driverapi.model.VerifyRequest;
 import com.ride.driverapi.service.DriverService;
 import com.ride.driverapi.utils.Constants;
 
@@ -41,6 +38,18 @@ public class DriverController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public Driver createDriver(@RequestBody SignUpRequest signUpRequest) {
 		return driverService.signUpDriver(signUpRequest);
+	}
+
+	@GetMapping("/status/{driverId}")
+	@ResponseStatus(HttpStatus.OK)
+	public String getDriverStatus(@PathVariable Long driverId) {
+		return driverService.getCuurentStatus(driverId);
+	}
+
+	@PostMapping("/verify")
+	@ResponseStatus(HttpStatus.CREATED)
+	public Driver verifyAccount(@RequestBody VerifyRequest verifyRequest) {
+		return driverService.verifyAccount(verifyRequest);
 	}
 
 	@PostMapping(value = "/uploadDocument", consumes = "multipart/form-data")
@@ -62,9 +71,4 @@ public class DriverController {
 		return driverService.uploadDocument(uploadReq, file);
 	}
 
-	@GetMapping("/status/{driverId}")
-	@ResponseStatus(HttpStatus.OK)
-	public String getDriverStatus(@PathVariable Long driverId) {
-		return driverService.getCuurentStatus(driverId);
-	}
 }
