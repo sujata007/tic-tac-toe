@@ -17,7 +17,7 @@ public interface DriverService {
 
 	String getCuurentStatus(Long driverId);
 
-	DriverDAO verifyAccount(VerifyRequest verifyRequest);
+	String verifyAccount(VerifyRequest verifyRequest);
 
 	void updateVehicle(Long driverId,Vehicle verifyRequest);
 

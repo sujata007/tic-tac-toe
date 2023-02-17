@@ -49,7 +49,7 @@ public class DriverController {
 
 	@PostMapping("/verify")
 	@ResponseStatus(HttpStatus.CREATED)
-	public DriverDAO verifyAccount(@RequestBody VerifyRequest verifyRequest) {
+	public String verifyAccount(@RequestBody VerifyRequest verifyRequest) {
 		return driverService.verifyAccount(verifyRequest);
 	}
 

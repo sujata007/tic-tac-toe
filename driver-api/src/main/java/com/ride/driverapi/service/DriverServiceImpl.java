@@ -127,13 +127,14 @@ public class DriverServiceImpl implements DriverService {
 	}
 
 	@Override
-	public DriverDAO verifyAccount(VerifyRequest verifyRequest) {
+	public String verifyAccount(VerifyRequest verifyRequest) {
 		// TODO Auto-generated method stub
 		int otpInCache = codes.get(verifyRequest.getDriverId());
 		if (otpInCache == verifyRequest.getCode()) {
 			Optional<DriverDAO> driver = driverRepository.findById(verifyRequest.getDriverId());
 			driver.get().setStatus(Status.NEW);
-			return driverRepository.save(driver.get());
+			driverRepository.save(driver.get());
+			return "Driver is verified!";
 		} else {
 			throw new InvalidDataException("Code entered is not valid");
 		}
