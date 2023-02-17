@@ -22,11 +22,12 @@ import com.ride.driverapi.model.DriverDocument;
 import com.ride.driverapi.model.EmailDetails;
 import com.ride.driverapi.model.SignUpRequest;
 import com.ride.driverapi.model.Status;
+import com.ride.driverapi.model.Vehicle;
 import com.ride.driverapi.model.VerifyRequest;
 import com.ride.driverapi.repository.DocumentRepository;
 import com.ride.driverapi.repository.DriverRepository;
 import com.ride.driverapi.utils.Constants;
-import com.ride.driverapi.utils.FileUploadUtil;
+import com.ride.driverapi.utils.FileUtil;
 import com.ride.driverapi.utils.Validator;
 
 @Service
@@ -62,9 +63,8 @@ public class DriverServiceImpl implements DriverService {
 		EmailDetails detail = new EmailDetails(request.getEmailId(), " Use code " + secretCode + " as OTP",
 				"Verification");
 		emailService.sendSimpleMail(detail);
-		Driver driver = new Driver.Builder(request.getEmailId()).setPhoneNumber(request.getPhoneNumber())
-				.setFirstName(request.getFirstName()).setLastName(request.getLastName())
-				.setPassword(request.getPassword()).setStatus(Status.INACTIVE).build();
+		Driver driver = new Driver(request.getEmailId(),request.getPhoneNumber(),request.getFirstName(),request.getLastName(),
+				request.getPassword(),null,Status.INACTIVE);
 		return driverRepository.save(driver);
 	}
 
@@ -80,7 +80,7 @@ public class DriverServiceImpl implements DriverService {
 					.filter((doc) -> doc.getDriverId().equals(driverId))
 					.filter((doc) -> Constants.DEFAULT_DOCUMENT_TYPE_STRINGS.contains(uploadRequest.getDocumentType()))
 					.findFirst();
-			FileUploadUtil.saveFile(uploadDir, fileName, file);
+			FileUtil.saveFile(uploadDir, fileName, file);
 			DriverDocument driverDoc = null;
 			if (existingDoc.isPresent()) {
 				driverDoc = existingDoc.get();
@@ -127,5 +127,19 @@ public class DriverServiceImpl implements DriverService {
 			throw new InvalidDataException("Code entered is not valid");
 		}
 	}
+
+	@Override
+	public void updateVehicle(Long driverId,Vehicle request) {
+		// TODO Auto-generated method stub
+		Optional<Driver> driver = driverRepository.findById(driverId);
+		if (driver.isPresent()) {
+			driverRepository.findById(driverId).get().setVehicle(request);;
+			driverRepository.save(driver.get());
+		} else {
+			throw new ElementNotFoundException("The Driver id is not found");
+		}
+	
+	}
+
 
 }

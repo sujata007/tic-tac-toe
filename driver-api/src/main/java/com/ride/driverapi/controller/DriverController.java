@@ -20,6 +20,7 @@ import com.ride.driverapi.exception.FormattedErrorException;
 import com.ride.driverapi.model.Driver;
 import com.ride.driverapi.model.DriverDocRequest;
 import com.ride.driverapi.model.SignUpRequest;
+import com.ride.driverapi.model.Vehicle;
 import com.ride.driverapi.model.VerifyRequest;
 import com.ride.driverapi.service.DriverService;
 import com.ride.driverapi.utils.Constants;
@@ -70,5 +71,11 @@ public class DriverController {
 		}
 		return driverService.uploadDocument(uploadReq, file);
 	}
+	@PostMapping("/{driverId}/vehicle")
+	@ResponseStatus(HttpStatus.CREATED)
+	public void vehicleDetails(@PathVariable Long driverId,@RequestBody Vehicle verifyRequest) {
+		 driverService.updateVehicle(driverId,verifyRequest);
+	}
+
 
 }
