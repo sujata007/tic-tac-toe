@@ -1,8 +1,8 @@
-package com.ride.driverapi.model;
+package com.ride.driverapi.dto;
 
 import java.io.Serializable;
 
-import javax.persistence.Embeddable;
+import javax.persistence.Entity;
 import javax.persistence.Id;
 
 import lombok.AllArgsConstructor;
@@ -10,9 +10,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Embeddable
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
 public class Vehicle implements Serializable {
 	private static final long serialVersionUID = 3252591505029724236L;
 

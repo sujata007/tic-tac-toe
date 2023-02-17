@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
+import com.ride.driverapi.dto.DriverDAO;
 import com.ride.driverapi.exception.BadRequestException;
 import com.ride.driverapi.exception.ElementNotFoundException;
 import com.ride.driverapi.model.DocumentType;
-import com.ride.driverapi.model.Driver;
 import com.ride.driverapi.model.DriverDocument;
 import com.ride.driverapi.model.Status;
 import com.ride.driverapi.model.VerificationStatus;
@@ -32,8 +32,8 @@ public class VendorServiceImpl implements VendorService {
 
 	public void verfiyDriver(Long driverId, String status) {
 		// TODO Auto-generated method stub
-		Optional<Driver> driver = driverRepository.findById(driverId);
-		if (!driver.isPresent()) {
+		Optional<DriverDAO> driver = driverRepository.findById(driverId);
+		if (driver.isPresent()) {
 			Optional<VerificationStatus> verStatus = VerificationStatus.getVerificationStatus(status);
 			if (verStatus.isPresent()) {
 				driver.get().setStatus(verStatus.get() == VerificationStatus.VERIFIED ? Status.VERIFICATION_COMPLETED
@@ -52,7 +52,7 @@ public class VendorServiceImpl implements VendorService {
 	public Resource downLoadFiles(Long driverId, DocumentType documentType) {
 		// TODO Auto-generated method stub
 
-		Optional<Driver> driver = driverRepository.findById(driverId);
+		Optional<DriverDAO> driver = driverRepository.findById(driverId);
 		if (!driver.isPresent()) {
 			Optional<DriverDocument> existingDoc = driverDocument.findAll().stream()
 					.filter((doc) -> doc.getDriverId().equals(driverId))

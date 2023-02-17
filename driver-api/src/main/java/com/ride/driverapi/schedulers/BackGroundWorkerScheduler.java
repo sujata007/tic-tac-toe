@@ -12,8 +12,8 @@ import org.springframework.boot.web.server.Shutdown;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.ride.driverapi.dto.DriverDAO;
 import com.ride.driverapi.model.DeviceStatus;
-import com.ride.driverapi.model.Driver;
 import com.ride.driverapi.model.DriverDocument;
 import com.ride.driverapi.model.EmailDetails;
 import com.ride.driverapi.model.ShippingDetail;
@@ -45,10 +45,10 @@ public class BackGroundWorkerScheduler {
 	@Scheduled(fixedRate = 20000)
 	public void triggerBackGrounVerificationProcess() {
 		System.out.println("Starting BV Worker");
-		List<Driver> onboardedDrivers = driverRepository.findAll().stream()
+		List<DriverDAO> onboardedDrivers = driverRepository.findAll().stream()
 				.filter((driver) -> driver.getStatus() == Status.NEW).collect(Collectors.toList());
 		
-		for(Driver driver: onboardedDrivers) {
+		for(DriverDAO driver: onboardedDrivers) {
 			List<DriverDocument> driversDoc = driverDocuemnt.findAll().stream().filter((driverdoc)->driverdoc.getDriverId().equals(driver.getId())).collect(Collectors.toList());
 			System.out.println("Size is " + driversDoc.size());
 			if(driversDoc.size()==4) {
@@ -63,10 +63,10 @@ public class BackGroundWorkerScheduler {
 	@Scheduled(fixedRate = 20000)
 	public void triggerShippmentOfDevice() {
 		System.out.println("Starting Shipment Worker");
-		List<Driver> onboardedDrivers = driverRepository.findAll().stream()
+		List<DriverDAO> onboardedDrivers = driverRepository.findAll().stream()
 				.filter((driver) -> driver.getStatus() == Status.VERIFICATION_COMPLETED).collect(Collectors.toList());
 		
-		for(Driver driver: onboardedDrivers) {
+		for(DriverDAO driver: onboardedDrivers) {
 			String deviceId = UUID.randomUUID().toString();
 			TrackingDevice device = new TrackingDevice(deviceId,driver.getId(),DeviceStatus.INACTIVE);
 			deviceRepository.save(device);
@@ -77,7 +77,7 @@ public class BackGroundWorkerScheduler {
 			shippingRepository.save(shippingDet);
 			EmailDetails detail = new EmailDetails(driver.getEmailId(),"Your tracking device is getting shipped ","Shipment Details");
 			emailService.sendSimpleMail(detail);
-			driver.setStatus(Status.VERIFICATION_STARTED);
+			driver.setStatus(Status.ONBOARDED);
 		}
 
 	}

@@ -9,11 +9,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ride.driverapi.model.DocumentType;
+import com.ride.driverapi.model.VendorVerificationRequest;
 import com.ride.driverapi.service.VendorService;
 
 @RestController
@@ -26,10 +29,10 @@ public class ThirdPartyVendorController {
 		this.vendorService = vendorService;
 	}
 
-	@PostMapping("/verify/{driverId}/{status}")
+	@PostMapping("/verify/")
 	@ResponseStatus(HttpStatus.CREATED)
-	public void verifyDriver(@PathVariable Long driverId, @PathVariable String status) {
-		vendorService.verfiyDriver(driverId, status);
+	public void verifyDriver(@RequestBody VendorVerificationRequest request) {
+		vendorService.verfiyDriver(request.getDriverId(), request.getStatus());
 	}
 
 	@GetMapping(value = "/downloadFile/{driverId}/{type}", produces = "multipart/form-data")

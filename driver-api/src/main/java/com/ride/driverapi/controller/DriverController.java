@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ride.driverapi.dto.DriverDAO;
+import com.ride.driverapi.dto.Vehicle;
 import com.ride.driverapi.exception.FormattedErrorException;
 import com.ride.driverapi.model.Driver;
 import com.ride.driverapi.model.DriverDocRequest;
-import com.ride.driverapi.model.SignUpRequest;
-import com.ride.driverapi.model.Vehicle;
 import com.ride.driverapi.model.VerifyRequest;
 import com.ride.driverapi.service.DriverService;
 import com.ride.driverapi.utils.Constants;
@@ -37,8 +37,8 @@ public class DriverController {
 
 	@PostMapping("/signup")
 	@ResponseStatus(HttpStatus.CREATED)
-	public Driver createDriver(@RequestBody SignUpRequest signUpRequest) {
-		return driverService.signUpDriver(signUpRequest);
+	public Long createDriver(@RequestBody Driver signUpRequest) {
+		 return driverService.signUpDriver(signUpRequest);
 	}
 
 	@GetMapping("/status/{driverId}")
@@ -49,7 +49,7 @@ public class DriverController {
 
 	@PostMapping("/verify")
 	@ResponseStatus(HttpStatus.CREATED)
-	public Driver verifyAccount(@RequestBody VerifyRequest verifyRequest) {
+	public DriverDAO verifyAccount(@RequestBody VerifyRequest verifyRequest) {
 		return driverService.verifyAccount(verifyRequest);
 	}
 
@@ -71,11 +71,11 @@ public class DriverController {
 		}
 		return driverService.uploadDocument(uploadReq, file);
 	}
+
 	@PostMapping("/{driverId}/vehicle")
 	@ResponseStatus(HttpStatus.CREATED)
-	public void vehicleDetails(@PathVariable Long driverId,@RequestBody Vehicle verifyRequest) {
-		 driverService.updateVehicle(driverId,verifyRequest);
+	public void vehicleDetails(@PathVariable Long driverId, @RequestBody Vehicle verifyRequest) {
+		driverService.updateVehicle(driverId, verifyRequest);
 	}
-
 
 }
