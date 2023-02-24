@@ -7,16 +7,18 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ride.driverapi.dto.DriverDAO;
-import com.ride.driverapi.dto.Vehicle;
 import com.ride.driverapi.exception.BadRequestException;
 import com.ride.driverapi.exception.ElementNotFoundException;
 import com.ride.driverapi.exception.InvalidDataException;
+import com.ride.driverapi.exception.UploadingException;
 import com.ride.driverapi.model.DocumentType;
 import com.ride.driverapi.model.Driver;
 import com.ride.driverapi.model.DriverDocRequest;
@@ -28,6 +30,7 @@ import com.ride.driverapi.repository.DocumentRepository;
 import com.ride.driverapi.repository.DriverRepository;
 import com.ride.driverapi.repository.VehicleRepository;
 import com.ride.driverapi.utils.Constants;
+import com.ride.driverapi.utils.EncryptDecryptPassword;
 import com.ride.driverapi.utils.FileUtil;
 import com.ride.driverapi.utils.Validator;
 
@@ -43,7 +46,7 @@ public class DriverServiceImpl implements DriverService {
 	private VehicleRepository vehicleRepository;
 
 	@Autowired
-	DriverServiceImpl(DriverRepository driverRepository, DocumentRepository documentRepository) {
+	public DriverServiceImpl(DriverRepository driverRepository, DocumentRepository documentRepository) {
 		this.driverRepository = driverRepository;
 		this.documentRepository = documentRepository;
 		this.codes = new HashMap<>();
@@ -55,27 +58,33 @@ public class DriverServiceImpl implements DriverService {
 		boolean isValidEmail = Validator.isEmailValid(request.getEmailId());
 
 		if (!isValidEmail) {
-			throw new BadRequestException("Email not valid");
+			throw new BadRequestException(Constants.INVALID_EMAIL);
 		}
 		boolean isValidPhoneNumber = Validator.isValidMobileNo(request.getPhoneNumber());
-
+		System.out.print("Email is" + isValidPhoneNumber);
 		if (!isValidPhoneNumber) {
-			throw new BadRequestException("Phone Number is not valid");
+			throw new BadRequestException(Constants.INVALID_PHONE);
 		}
+		String encodedPassword = EncryptDecryptPassword.encryptPassword(request.getPassword());
 		int secretCode = rand.nextInt(10000);
-		
+		Optional<DriverDAO> existingDriver = driverRepository.findAll().stream()
+				.filter(d -> d.getEmailId().equals(request.getEmailId())).findFirst();
+		if (existingDriver.isPresent()) {
+			return existingDriver.get().getId();
+		}
 		EmailDetails detail = new EmailDetails(request.getEmailId(), " Use code " + secretCode + " as OTP",
 				"Verification");
 		emailService.sendSimpleMail(detail);
-		DriverDAO driver = new DriverDAO(request.getEmailId(),request.getPhoneNumber(),request.getFirstName(),request.getLastName(),
-				request.getPassword(),request.getVehicle()!=null?request.getVehicle().getRegNumber():null,Status.INACTIVE);
-		if(request.getVehicle()!=null) {
+		DriverDAO driver = new DriverDAO(request.getEmailId(), request.getPhoneNumber(), request.getFirstName(),
+				request.getLastName(), encodedPassword,
+				request.getVehicle() != null ? request.getVehicle().getRegNumber() : null, Status.INACTIVE);
+		if (request.getVehicle() != null) {
 			vehicleRepository.save(request.getVehicle());
 		}
 		DriverDAO savedDriver = driverRepository.save(driver);
 		codes.put(savedDriver.getId(), secretCode);
 		return savedDriver.getId();
-		
+
 	}
 
 	@Override
@@ -92,16 +101,15 @@ public class DriverServiceImpl implements DriverService {
 					.findFirst();
 			FileUtil.saveFile(uploadDir, fileName, file);
 			DriverDocument driverDoc = null;
-			if (existingDoc.isPresent()) {	
+			if (existingDoc.isPresent()) {
 				driverDoc = existingDoc.get();
-				//documentRepository.delete(driverDoc);
 				driverDoc.setDocumentId(documentId);
 			} else {
 				DocumentType t = Arrays.stream(DocumentType.values())
 						.filter(e -> e.docType.equals(uploadRequest.getDocumentType())).findFirst()
 						.orElseThrow(() -> new IllegalStateException(
 								String.format("Unsupported type %s.", uploadRequest.getDocumentType())));
-				driverDoc = new DriverDocument(documentId, t, driverId, uploadDir + "" + fileName);
+				driverDoc = new DriverDocument(documentId, t, driverId, uploadDir + "/" + fileName);
 			}
 
 			documentRepository.save(driverDoc);
@@ -109,20 +117,22 @@ public class DriverServiceImpl implements DriverService {
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new UploadingException(e.getMessage());
+
 		}
-		return documentId;
 	}
+	//1. The Database -> HBase
+	//Trip-> tridId, driveId , source, destination, status, createdAt, updatedAt
+	//Billing->trip, trtansactionId, amount, status,paymentTime
 
 	@Override
 	public String getCuurentStatus(Long driverId) {
 		// TODO Auto-generated method stub
 		Optional<DriverDAO> driver = driverRepository.findById(driverId);
 		if (driver.isPresent()) {
-			System.out.print("Getting the status");
 			return driver.get().getStatus().toString();
 		} else {
-			throw new ElementNotFoundException("The Driver id is not found");
+			throw new ElementNotFoundException(Constants.DRIVER_NOT_FOUND);
 		}
 	}
 
@@ -136,23 +146,28 @@ public class DriverServiceImpl implements DriverService {
 			driverRepository.save(driver.get());
 			return "Driver is verified!";
 		} else {
-			throw new InvalidDataException("Code entered is not valid");
+			throw new InvalidDataException(Constants.INVALID_CODE);
 		}
 	}
 
 	@Override
-	public void updateVehicle(Long driverId,Vehicle request) {
+	public Long loginDriver(String logInRequest) {
 		// TODO Auto-generated method stub
-		Optional<DriverDAO> driver = driverRepository.findById(driverId);
-		if (driver.isPresent()) {
-			driver.get().setRegNumber(request.getRegNumber());
-			driverRepository.save(driver.get());
-			vehicleRepository.save(request);
-		} else {
-			throw new ElementNotFoundException("The Driver id is not found");
-		}
-	
-	}
+		JSONObject object = (JSONObject) JSONValue.parse(logInRequest);
+		String emailAdress = (String) object.get("emailId");
+		String password = (String) object.get("password");
 
+		Optional<DriverDAO> driver = driverRepository.findAll().stream().filter(d -> d.getEmailId().equals(emailAdress))
+				.findFirst();
+		if (driver.isPresent() && driver.get().getStatus() != Status.INACTIVE) {
+			if (EncryptDecryptPassword.checkPassword(password, driver.get().getPassword())) {
+				return driver.get().getId();
+			} else {
+				throw new BadRequestException(Constants.INCORRECT_PASSWORD);
+			}
+		} else {
+			throw new ElementNotFoundException(Constants.DRIVER_NOT_FOUND);
+		}
+	}
 
 }

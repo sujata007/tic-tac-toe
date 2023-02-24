@@ -16,29 +16,31 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ride.driverapi.dto.DriverDAO;
 import com.ride.driverapi.dto.Vehicle;
 import com.ride.driverapi.exception.FormattedErrorException;
 import com.ride.driverapi.model.Driver;
 import com.ride.driverapi.model.DriverDocRequest;
 import com.ride.driverapi.model.VerifyRequest;
 import com.ride.driverapi.service.DriverService;
+import com.ride.driverapi.service.VehicleService;
 import com.ride.driverapi.utils.Constants;
 
 @RestController
 @RequestMapping("/driver")
 public class DriverController {
 	private final DriverService driverService;
+	private final VehicleService vehicleService;
 
 	@Autowired
-	public DriverController(DriverService driverService) {
+	public DriverController(DriverService driverService, VehicleService vehicleService) {
 		this.driverService = driverService;
+		this.vehicleService = vehicleService;
 	}
 
 	@PostMapping("/signup")
 	@ResponseStatus(HttpStatus.CREATED)
 	public Long createDriver(@RequestBody Driver signUpRequest) {
-		 return driverService.signUpDriver(signUpRequest);
+		return driverService.signUpDriver(signUpRequest);
 	}
 
 	@GetMapping("/status/{driverId}")
@@ -74,8 +76,20 @@ public class DriverController {
 
 	@PostMapping("/{driverId}/vehicle")
 	@ResponseStatus(HttpStatus.CREATED)
-	public void vehicleDetails(@PathVariable Long driverId, @RequestBody Vehicle verifyRequest) {
-		driverService.updateVehicle(driverId, verifyRequest);
+	public void vehicleDetails(@PathVariable Long driverId, @RequestBody Vehicle vehicleRequest) {
+		vehicleService.updateVehicle(driverId, vehicleRequest);
+	}
+
+	@PostMapping("/{driverId}/status/")
+	@ResponseStatus(HttpStatus.OK)
+	public String updateStatus(@PathVariable Long driverId, @RequestBody String status) {
+		return vehicleService.updateStatus(driverId, status);
+	}
+
+	@PostMapping("/login")
+	@ResponseStatus(HttpStatus.CREATED)
+	public Long loginDriver(@RequestBody String logInRequest) {
+		return driverService.loginDriver(logInRequest);
 	}
 
 }

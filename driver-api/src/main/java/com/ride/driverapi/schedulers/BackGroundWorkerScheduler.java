@@ -78,6 +78,7 @@ public class BackGroundWorkerScheduler {
 			EmailDetails detail = new EmailDetails(driver.getEmailId(),"Your tracking device is getting shipped ","Shipment Details");
 			emailService.sendSimpleMail(detail);
 			driver.setStatus(Status.ONBOARDED);
+			driverRepository.save(driver);
 		}
 
 	}

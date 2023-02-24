@@ -1,6 +1,8 @@
 package com.ride.driverapi.service;
 
 import java.io.FileNotFoundException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,17 +51,18 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	@Override
-	public Resource downLoadFiles(Long driverId, DocumentType documentType) {
+	public Resource downLoadFiles(Long driverId, String documentType) {
 		// TODO Auto-generated method stub
 
 		Optional<DriverDAO> driver = driverRepository.findById(driverId);
-		if (!driver.isPresent()) {
+		if (driver.isPresent()) {
 			Optional<DriverDocument> existingDoc = driverDocument.findAll().stream()
-					.filter((doc) -> doc.getDriverId().equals(driverId))
-					.filter((doc) -> Constants.DEFAULT_DOCUMENT_TYPE_STRINGS.contains(documentType.toString()))
+					.filter((doc) -> doc.getDriverId()==driverId)
+					.filter((doc) -> Constants.DEFAULT_DOCUMENT_TYPE_STRINGS.contains(documentType))
 					.findFirst();
 			if (existingDoc.isPresent()) {
-				String fileName = existingDoc.get().getPath();
+				String fileName = Paths.get("").toAbsolutePath().toString() + "/"+existingDoc.get().getPath();
+				System.out.print("Document " + fileName);
 				try {
 					return FileUtil.loadFileAsResource(fileName);
 				} catch (FileNotFoundException e) {

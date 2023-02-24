@@ -3,11 +3,10 @@ package com.ride.driverapi.service;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.ride.driverapi.dto.DriverDAO;
-import com.ride.driverapi.dto.Vehicle;
 import com.ride.driverapi.model.Driver;
 import com.ride.driverapi.model.DriverDocRequest;
 import com.ride.driverapi.model.VerifyRequest;
+
 @Component
 public interface DriverService {
 
@@ -19,7 +18,6 @@ public interface DriverService {
 
 	String verifyAccount(VerifyRequest verifyRequest);
 
-	void updateVehicle(Long driverId,Vehicle verifyRequest);
-
+	Long loginDriver(String logInRequest);
 
 }

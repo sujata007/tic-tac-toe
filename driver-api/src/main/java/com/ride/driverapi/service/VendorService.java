@@ -8,6 +8,6 @@ public interface VendorService {
 
 	void verfiyDriver(Long driverId, String status);
 
-	Resource downLoadFiles(Long driverId, DocumentType type);
+	Resource downLoadFiles(Long driverId, String type);
 
 }

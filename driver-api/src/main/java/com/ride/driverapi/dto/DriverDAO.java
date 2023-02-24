@@ -2,7 +2,6 @@ package com.ride.driverapi.dto;
 
 import java.io.Serializable;
 
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -37,6 +36,7 @@ public class DriverDAO implements Serializable {
 		this.phoneNumber = phoneNumber;
 		this.firstName = firstName;
 		this.lastName = lastName;
+		this.password = password;
 		this.regNumber = regNumber;
 		this.status = status;
 	}

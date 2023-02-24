@@ -36,8 +36,9 @@ public class ThirdPartyVendorController {
 	}
 
 	@GetMapping(value = "/downloadFile/{driverId}/{type}", produces = "multipart/form-data")
-	public ResponseEntity<Resource> downloadFile(@PathVariable Long driverId, @PathVariable DocumentType type) {
+	public ResponseEntity<Resource> downloadFile(@PathVariable Long driverId, @PathVariable String type) {
 		// Load file as Resource
+		System.out.println("Downloading!!");
 		Resource resource = vendorService.downLoadFiles(driverId, type);
 		return ResponseEntity.ok().contentType(MediaType.MULTIPART_FORM_DATA)
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
